@@ -1,0 +1,114 @@
+
+{% extends 'expenses/base.html' %}
+
+{% block title %}Savings Goals | Expenses Tracker{% endblock %}
+
+{% block page_heading %}Savings Goals{% endblock %}
+
+{% block content %}
+
+<div class="recent-expenses">
+
+    <div class="section-header">
+        <h2>🎯 My Savings Goals</h2>
+
+        <a href="{% url 'add_savings_goal' %}"
+           class="btn btn-primary">
+            + Add Goal
+        </a>
+    </div>
+
+    {% if goals %}
+
+        <div class="stats-grid">
+
+            {% for goal in goals %}
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">🎯</div>
+
+                    <h3>{{ goal.goal_name }}</h3>
+
+                    <p>Target Amount</p>
+                    <h2>₹{{ goal.target_amount|floatformat:2 }}</h2>
+
+                    <p>Already Saved</p>
+                    <h3>₹{{ goal.saved_amount|floatformat:2 }}</h3>
+
+                    <p>Remaining Amount</p>
+                    <h3>₹{{ goal.remaining_amount|floatformat:2 }}</h3>
+
+                    <p>Monthly Contribution</p>
+                    <h3>₹{{ goal.monthly_contribution|floatformat:2 }}</h3>
+
+                    <div style="
+                        background: #303650;
+                        height: 10px;
+                        border-radius: 10px;
+                        overflow: hidden;
+                        margin: 15px 0;
+                    ">
+                        <div style="
+                            width: {{ goal.progress_percentage }}%;
+                            background: #8b7cff;
+                            height: 100%;
+                            border-radius: 10px;
+                        "></div>
+                    </div>
+
+                    <p>
+                        Progress:
+                        {{ goal.progress_percentage|floatformat:1 }}%
+                    </p>
+
+                    {% if goal.months_remaining != None %}
+                        <p>
+                            {% if goal.months_remaining == 0 %}
+                                🎉 Goal reached!
+                            {% else %}
+                                ⏳ Approximately
+                                {{ goal.months_remaining }} months remaining
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <p>Set a monthly contribution to estimate the time needed.</p>
+                    {% endif %}
+
+                    <!-- DELETE GOAL BUTTON -->
+                    <form method="POST"
+                          action="{% url 'delete_savings_goal' goal.pk %}"
+                          onsubmit="return confirm('Are you sure you want to delete this savings goal?');">
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="delete-goal-btn">
+                            🗑️ Delete Goal
+                        </button>
+
+                    </form>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            <div class="empty-icon">🏍️</div>
+            <h3>No savings goals yet</h3>
+            <p>Create your first goal for a bike, car, laptop, or anything you want!</p>
+
+            <a href="{% url 'add_savings_goal' %}"
+               class="btn btn-primary">
+                + Create Your First Goal
+            </a>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

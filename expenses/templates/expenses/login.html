@@ -1,0 +1,143 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=5.0, user-scalable=yes">
+
+    <title>Login | Expenses Tracker</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=10">
+</head>
+
+<body class="login-page">
+
+    <div class="login-container">
+
+        <!-- Left Section -->
+        <div class="login-info">
+
+            <div class="brand">
+                <div class="brand-icon">₹</div>
+                <h2>Expense Tracker</h2>
+            </div>
+
+            <div class="welcome-content">
+
+                <h1>Manage Your Money Smarter.</h1>
+
+                <p>
+                    Track your daily expenses, manage your budget,
+                    and understand where your money goes.
+                </p>
+
+                <div class="feature">
+                    <span>✓</span>
+                    Track all your expenses
+                </div>
+
+                <div class="feature">
+                    <span>✓</span>
+                    Manage 16 expense categories
+                </div>
+
+                <div class="feature">
+                    <span>✓</span>
+                    View monthly spending
+                </div>
+
+            </div>
+
+            <p class="copyright">
+                Personal Expense Management System
+            </p>
+
+        </div>
+
+        <!-- Right Section -->
+        <div class="login-form-section">
+
+            <div class="login-card">
+
+                <h1>Welcome Back!</h1>
+
+                <p class="subtitle">
+                    Enter your credentials to access your account.
+                </p>
+
+                {% if form.errors %}
+                    <div class="error-message">
+                        Invalid username or password.
+                        Please try again.
+                    </div>
+                {% endif %}
+
+                {% if next and user.is_authenticated %}
+                    <div class="error-message">
+                        Your account cannot access this page.
+                        Please log in with another account.
+                    </div>
+                {% endif %}
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="next"
+                        value="{{ next|default:'/' }}"
+                    >
+
+                    <div class="form-group">
+
+                        <label for="id_username">Username</label>
+
+                        <input
+                            type="text"
+                            name="username"
+                            id="id_username"
+                            placeholder="Enter your username"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="id_password">Password</label>
+
+                        <input
+                            type="password"
+                            name="password"
+                            id="id_password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        Login to Dashboard
+                    </button>
+
+                </form>
+
+                <div class="login-footer">
+                    <p>
+                        Secure login to your personal expense tracker.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,337 @@
+{% extends 'expenses/base.html' %}
+
+{% block title %}Dashboard | Expenses Tracker{% endblock %}
+
+{% block page_heading %}Dashboard{% endblock %}
+
+{% block extra_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.Chart) {
+        Chart.defaults.font.size = 14;
+        Chart.defaults.font.family = '"Segoe UI", Roboto, Arial, sans-serif';
+    }
+
+    // Monthly Spending Chart
+    const monthlyCanvas = document.getElementById("monthlyExpenseChart");
+
+    if (monthlyCanvas) {
+        const monthlyLabels = {{ monthly_chart_labels|safe }};
+        const monthlyValues = {{ monthly_chart_values|safe }};
+
+        new Chart(monthlyCanvas, {
+            type: "line",
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: "Monthly Expenses (₹)",
+                    data: monthlyValues,
+                    borderColor: "#8b7cff",
+                    backgroundColor: "rgba(139, 124, 255, 0.18)",
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "#f3f5ff"
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: "#a4acc8"
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: "#a4acc8"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Category Breakdown Chart
+    const categoryCanvas = document.getElementById("categoryExpenseChart");
+
+    if (categoryCanvas) {
+        const categoryLabels = {{ category_chart_labels|safe }};
+        const categoryValues = {{ category_chart_values|safe }};
+
+        new Chart(categoryCanvas, {
+            type: "doughnut",
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryValues,
+                    backgroundColor: [
+                        "#8b7cff",
+                        "#4ed6a0",
+                        "#ff747e",
+                        "#ffc66d",
+                        "#53b8ff",
+                        "#e879f9",
+                        "#fb923c",
+                        "#a3e635"
+                    ],
+                    borderWidth: 2,
+                    borderColor: "#171c31"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            color: "#f3f5ff"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h2>Welcome back, {{ request.user.username }}! 👋</h2>
+        <p>Here's an overview of your expenses.</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <p>Today's Expenses</p>
+            <h2>₹{{ today_total|floatformat:2 }}</h2>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <p>This Month</p>
+            <h2>₹{{ monthly_total|floatformat:2 }}</h2>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <p>Total Expenses</p>
+            <h2>₹{{ overall_total|floatformat:2 }}</h2>
+        </div>
+        <!-- Monthly Salary -->
+        <div class="stat-card">
+            <div class="stat-icon">💵</div>
+            <p>Monthly Salary</p>
+            <h2>₹{{ monthly_salary|floatformat:2 }}</h2>
+            <a href="{% url 'salary_settings' %}" class="view-all-btn">
+            ✏️ Update Salary</a>
+        </div>
+
+    <!-- Estimated Monthly Savings -->
+        <div class="stat-card">
+            <div class="stat-icon">🏦</div>
+            <p>Estimated Monthly Savings</p>
+            <h2>₹{{ monthly_savings|floatformat:2 }}</h2>
+            <p> Savings Rate: {{ savings_percentage|floatformat:1 }}% </p>
+        </div>
+
+        <!-- Highest Spending Category -->
+        <div class="stat-card highest-category-card">
+
+            <div class="stat-icon">🏆</div>
+
+            <p>Highest Spending Category</p>
+
+            {% if highest_category %}
+            <h2>{{ highest_category.category }}</h2>
+
+            <p class="highest-category-amount">
+            ₹{{ highest_category.total|floatformat:2 }}
+            </p>
+            {% else %}
+            <h2>No expenses yet</h2>
+            <p class="highest-category-amount">
+            Add an expense to see your top category.
+            </p>
+            {% endif %}
+
+         </div>
+    </div>
+
+    <!-- Recent Expenses -->
+    <div class="recent-expenses">
+
+        <div class="section-header">
+            <h2>Recent Expenses</h2>
+
+            <a href="{% url 'expense_list' %}" class="view-all-btn">
+                View All →
+            </a>
+        </div>
+
+        {% if recent_expenses %}
+
+            <div class="table-container">
+                <table class="expense-table">
+
+                    <thead>
+                        <tr>
+                            <th>Expense</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for expense in recent_expenses %}
+                            <tr>
+                                <td>{{ expense.title }}</td>
+                                <td>{{ expense.get_category_display }}</td>
+                                <td>{{ expense.date|date:"d M Y" }}</td>
+                                <td>₹{{ expense.amount|floatformat:2 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                <div class="empty-icon">🧾</div>
+                <h3>No expenses yet</h3>
+                <p>Start tracking your spending by adding your first expense.</p>
+
+                <a href="{% url 'add_expense' %}" class="btn btn-primary">
+                    + Add Expense
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <!-- Quick Action -->
+    <div class="quick-action">
+        <div>
+            <h3>Record a new expense</h3>
+            <p>Keep track of your daily spending.</p>
+        </div>
+
+        <a href="{% url 'add_expense' %}" class="btn btn-primary">
+            + Add Expense
+        </a>
+    </div>
+
+</div>
+
+<!-- Expense Analytics -->
+<div class="analytics-section">
+
+    <div class="analytics-header">
+        <h2>Expense Analytics</h2>
+        <p>Understand your spending patterns.</p>
+    </div>
+
+    <div class="charts-grid">
+
+        <!-- Monthly Expense Chart -->
+        <div class="chart-card">
+
+            <h3>Monthly Spending</h3>
+
+            <p class="chart-description">
+                Your expenses over the last 6 months.
+            </p>
+
+            <div class="chart-container">
+                <canvas id="monthlyExpenseChart"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Category Expense Chart -->
+        <div class="chart-card">
+
+            <h3>Category Breakdown</h3>
+
+            <p class="chart-description">
+                This month's spending by category.
+            </p>
+
+            <div class="chart-container">
+                <canvas id="categoryExpenseChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- Income vs Expense Chart -->
+<div class="card">
+    <h3>📈 Income vs Expense</h3>
+    <div class="chart-container"><canvas id="incomeExpenseChart"></canvas></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('incomeExpenseChart');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Monthly Salary', 'Monthly Expenses', 'Monthly Savings'],
+            datasets: [{
+                label: 'Amount (₹)',
+                data: [
+                    {{ monthly_salary|default:0 }},
+                    {{ monthly_total|default:0 }},
+                    {{ monthly_savings|default:0 }}
+                ],
+                backgroundColor: [
+                    '#28a745',
+                    '#dc3545',
+                    '#007bff'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

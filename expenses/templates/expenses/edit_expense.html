@@ -1,0 +1,66 @@
+{% extends 'expenses/base.html' %}
+
+{% block title %}Edit Expense | Expenses Tracker{% endblock %}
+
+{% block page_heading %}Edit Expense{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <div class="form-card">
+
+        <h2>✏️ Edit Expense</h2>
+
+        <p class="form-description">
+            Update your expense details below.
+        </p>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="error-message">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+
+                <div class="form-group">
+
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% for error in field.errors %}
+                        <small class="error">{{ error }}</small>
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+            <div class="form-actions">
+
+                <button type="submit" class="btn btn-primary">
+                    Update Expense
+                </button>
+
+                <a href="{% url 'expense_list' %}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

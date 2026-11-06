@@ -1,0 +1,83 @@
+{% extends 'expenses/base.html' %}
+
+{% block title %}Add Savings Goal | Expenses Tracker{% endblock %}
+
+{% block page_heading %}Add Savings Goal{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <div class="form-header">
+        <h2>🎯 Create a Savings Goal</h2>
+        <p>Plan your next big purchase!</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="goal_name">Goal Name</label>
+            <input
+                type="text"
+                id="goal_name"
+                name="goal_name"
+                placeholder="Example: Bike, Car, Laptop"
+                maxlength="100"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="target_amount">Target Amount (₹)</label>
+            <input
+                type="number"
+                id="target_amount"
+                name="target_amount"
+                min="0.01"
+                step="0.01"
+                placeholder="150000"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="saved_amount">Already Saved (₹)</label>
+            <input
+                type="number"
+                id="saved_amount"
+                name="saved_amount"
+                min="0"
+                step="0.01"
+                value="0"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="monthly_contribution">Monthly Saving (₹)</label>
+            <input
+                type="number"
+                id="monthly_contribution"
+                name="monthly_contribution"
+                min="0"
+                step="0.01"
+                placeholder="5000"
+                value="0"
+                required
+            >
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Save Goal
+        </button>
+
+        <a href="{% url 'savings_goals' %}" class="btn">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}
